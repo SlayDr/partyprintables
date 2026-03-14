@@ -888,6 +888,41 @@ function getEventFields(eventType) {
   // Add anniversary to event types if not already there
   return fields[eventType] || fields.general;
 }
+
+/* ── Donation Widget ──────────────────────────────────────────────── */
+function DonationWidget({ donationAmt, setDonationAmt, customAmt, setCustomAmt }) {
+  const finalAmt = donationAmt === "custom" ? customAmt : donationAmt;
+  return (
+    <div className="donation-bar">
+      <div className="donation-title">❤️ Enjoying PartyPrintables?</div>
+      <p className="donation-sub">This tool is completely free. If it saved you time and made your party special, consider buying us a coffee — every donation keeps it free for everyone!</p>
+      <div className="donation-amounts">
+        {["$2","$5","$10","$20","custom"].map(a => (
+          <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`}
+            onClick={() => { setDonationAmt(a); if(a !== "custom") setCustomAmt(""); }}>
+            {a === "custom" ? "Custom 💛" : a}
+          </button>
+        ))}
+      </div>
+      {donationAmt === "custom" && (
+        <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"center", marginBottom:16 }}>
+          <span style={{ fontWeight:800, fontSize:18, color:"var(--dark)" }}>$</span>
+          <input type="number" min="1" placeholder="Enter amount"
+            value={customAmt} onChange={e => setCustomAmt(e.target.value)}
+            style={{ width:120, padding:"10px 14px", borderRadius:14, border:"2px solid var(--purple)", fontSize:16, fontWeight:700, textAlign:"center", color:"#1a1a1a", background:"white", colorScheme:"light" }}
+          />
+        </div>
+      )}
+      {(finalAmt && finalAmt !== "custom") && (
+        <button className="btn btn-primary" onClick={() => alert(`Thank you! Stripe integration coming soon — your ${donationAmt === "custom" ? `$${customAmt}` : donationAmt} donation means the world! 🙏`)}>
+          ☕ Donate {donationAmt === "custom" ? `$${customAmt}` : donationAmt}
+        </button>
+      )}
+      <div style={{ fontSize:12, color:"#9ca3af", fontWeight:700, marginTop:12 }}>🔒 Secure payments via Stripe · Coming soon</div>
+    </div>
+  );
+}
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [form, setForm] = useState({ name: "", age: "", eventType: "birthday_kids", hobbies: "", favorites: "", funFacts: "", venue: "" });
@@ -897,6 +932,8 @@ export default function App() {
   const [gameData, setGameData] = useState({});
   const [activeTab, setActiveTab] = useState(null);
   const [donationAmt, setDonationAmt] = useState(null);
+  const [customAmt, setCustomAmt] = useState("");
+  const [printAll, setPrintAll] = useState(false);
   const printRef = useRef();
 
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -917,6 +954,29 @@ export default function App() {
     document.title = `${displayName}'s ${eventLabel} - ${gameLabel}`;
     window.print();
     setTimeout(() => { document.title = prevTitle; }, 1000);
+  };
+
+  const handlePrintAll = () => {
+    const eventLabel = {
+      birthday_kids: "Birthday", birthday_adult: "Birthday",
+      baby_shower: "Baby Shower", wedding: "Wedding",
+      anniversary: "Anniversary", graduation: "Graduation",
+      retirement: "Retirement", holiday: "Holiday Party", general: "Party",
+    }[form.eventType] || "Party";
+    const name = form.name?.trim() || "Celebrant";
+    const partner = form.partner?.trim();
+    const displayName = partner ? `${name} & ${partner}` : name;
+    const prevTitle = document.title;
+    document.title = `${displayName}'s ${eventLabel} - All Games`;
+    // Show all sheets for printing
+    setPrintAll(true);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        setPrintAll(false);
+        document.title = prevTitle;
+      }, 500);
+    }, 200);
   };
 
   const generate = () => {
@@ -1081,20 +1141,7 @@ export default function App() {
 
           {/* Donation */}
           <section className="section donation-section" id="donate">
-            <div className="donation-bar">
-              <div className="donation-title">❤️ Enjoying PartyPrintables?</div>
-              <p className="donation-sub">This tool is completely free. If it saved you time and made your party special, consider buying us a coffee! Every donation keeps this free for everyone.</p>
-              <div className="donation-amounts">
-                {["$2", "$5", "$10", "$20"].map(a => (
-                  <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`} onClick={() => setDonationAmt(a)}>{a}</button>
-                ))}
-              </div>
-              {donationAmt && (
-                <button className="btn btn-primary" onClick={() => alert(`Thank you! Donation of ${donationAmt} — payment integration coming soon! 🙏`)}>
-                  ☕ Donate {donationAmt}
-                </button>
-              )}
-            </div>
+            <DonationWidget donationAmt={donationAmt} setDonationAmt={setDonationAmt} customAmt={customAmt} setCustomAmt={setCustomAmt}/>
           </section>
         </>
       )}
@@ -1131,7 +1178,19 @@ export default function App() {
               </div>
 
               {/* Game selection */}
-              <label style={{ display: "block", marginBottom: 10 }}>Select Games to Generate</label>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, flexWrap:"wrap", gap:8 }}>
+                <label style={{ margin:0 }}>Select Games to Generate</label>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={()=>setSelectedGames(GAMES.map(g=>g.id))}
+                    style={{ padding:"5px 14px", borderRadius:99, border:"2px solid var(--purple)", background:"#f9f0ff", color:"var(--purple)", fontWeight:800, fontSize:12, cursor:"pointer" }}>
+                    ✅ Select All
+                  </button>
+                  <button onClick={()=>setSelectedGames([])}
+                    style={{ padding:"5px 14px", borderRadius:99, border:"2px solid #e9d5ff", background:"white", color:"#6b7280", fontWeight:800, fontSize:12, cursor:"pointer" }}>
+                    ✕ Clear
+                  </button>
+                </div>
+              </div>
               <div className="game-select-grid">
                 {GAMES.map(g => (
                   <div key={g.id} className={`game-pill${selectedGames.includes(g.id) ? " selected" : ""}`} onClick={() => toggleGame(g.id)}>
@@ -1139,11 +1198,14 @@ export default function App() {
                   </div>
                 ))}
               </div>
+              <div style={{ fontSize:12, fontWeight:700, color:"#9ca3af", marginBottom:16, marginTop:4 }}>
+                {selectedGames.length === 0 ? "No games selected" : selectedGames.length === GAMES.length ? `All ${GAMES.length} games selected 🎉` : `${selectedGames.length} of ${GAMES.length} games selected`}
+              </div>
 
-              <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 8 }} onClick={generate}>
-                ✨ Generate My Party Pack
+              <button className="btn btn-primary" style={{ width:"100%", justifyContent:"center", marginTop:4 }} onClick={generate}>
+                ✨ {selectedGames.length === GAMES.length ? "Generate All Games!" : selectedGames.length > 1 ? `Generate ${selectedGames.length} Games!` : "Generate My Party Pack"}
               </button>
-              <button className="btn btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10 }} onClick={() => setScreen("home")}>
+              <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", marginTop:10 }} onClick={() => setScreen("home")}>
                 ← Back
               </button>
             </div>
@@ -1169,8 +1231,9 @@ export default function App() {
                 <h2 style={{ fontFamily: "'Pacifico', cursive", fontSize: 28, color: "var(--dark)", marginBottom: 4 }}>🎉 {form.name}'s Party Pack</h2>
                 <div style={{ fontSize: 14, color: "#6b7280", fontWeight: 700 }}>{selectedGames.length} games generated · Click a tab to view each game</div>
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", gap: 10, flexWrap:"wrap" }}>
                 <button className="btn btn-primary btn-sm" onClick={handlePrint}>🖨️ Print This Game</button>
+                <button className="btn btn-secondary btn-sm" onClick={handlePrintAll}>🖨️ Print All Games</button>
                 <button className="btn btn-secondary btn-sm" onClick={() => setScreen("generator")}>← Edit Details</button>
               </div>
             </div>
@@ -1187,13 +1250,21 @@ export default function App() {
               })}
             </div>
 
-            {/* Active sheet */}
+            {/* Active sheet — or all sheets when printing all */}
             <div ref={printRef}>
-              {activeTab && renderSheet(activeTab)}
+              {printAll
+                ? selectedGames.map(gid => (
+                    <div key={gid} style={{ pageBreakAfter:"always" }}>
+                      {renderSheet(gid)}
+                    </div>
+                  ))
+                : activeTab && renderSheet(activeTab)
+              }
             </div>
 
             <div className="print-actions">
-              <button className="btn btn-primary btn-sm" onClick={handlePrint}>🖨️ Print / Save as PDF</button>
+              <button className="btn btn-primary btn-sm" onClick={handlePrint}>🖨️ Print This Game</button>
+              <button className="btn btn-secondary btn-sm" onClick={handlePrintAll}>🖨️ Print All Games</button>
               <button className="btn btn-secondary btn-sm" onClick={() => { setScreen("generator"); }}>🔄 Generate New Pack</button>
             </div>
 
@@ -1208,20 +1279,7 @@ export default function App() {
 
             {/* Donation */}
             <div style={{ marginTop: 32 }}>
-              <div className="donation-bar">
-                <div className="donation-title">❤️ Did this save your party planning?</div>
-                <p className="donation-sub">PartyPrintables is free. If you loved it, please consider a small donation to keep it running!</p>
-                <div className="donation-amounts">
-                  {["$2", "$5", "$10", "$20"].map(a => (
-                    <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`} onClick={() => setDonationAmt(a)}>{a}</button>
-                  ))}
-                </div>
-                {donationAmt && (
-                  <button className="btn btn-primary" onClick={() => alert(`Thank you! Donation of ${donationAmt} — payment integration coming soon! 🙏`)}>
-                    ☕ Donate {donationAmt}
-                  </button>
-                )}
-              </div>
+              <DonationWidget donationAmt={donationAmt} setDonationAmt={setDonationAmt} customAmt={customAmt} setCustomAmt={setCustomAmt}/>
             </div>
           </div>
         </div>
