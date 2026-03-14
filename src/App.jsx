@@ -8,7 +8,7 @@ function generateGameData(gameId, form) {
   const partner = form.partner || "";
   const age = form.age ? `${form.age}-year-old` : "";
   const hobbies = form.hobbies ? form.hobbies.split(/[,;]+/).map(s=>s.trim()).filter(Boolean) : ["music","cooking","travel"];
-  const favs = form.favourites ? form.favourites.split(/[,;]+/).map(s=>s.trim()).filter(Boolean) : ["coffee","cats","Netflix"];
+  const favs = form.favorites ? form.favorites.split(/[,;]+/).map(s=>s.trim()).filter(Boolean) : ["coffee","cats","Netflix"];
   const venue = form.venue || "home";
   const isCouple = ["wedding","anniversary"].includes(form.eventType);
   const isBaby = form.eventType === "baby_shower";
@@ -34,12 +34,12 @@ function generateGameData(gameId, form) {
     case "crossword":
       return {
         pairs: [
-          { word: name.split(" ")[0].toUpperCase().replace(/[^A-Z]/g,""), clue: isCouple ? `First name of one half of the couple` : `First name of our guest of honour` },
+          { word: name.split(" ")[0].toUpperCase().replace(/[^A-Z]/g,""), clue: isCouple ? `First name of one half of the couple` : `First name of our celebrant(s)` },
           ...(partner ? [{ word: partner.split(" ")[0].toUpperCase().replace(/[^A-Z]/g,""), clue: `Their partner's first name` }] : []),
           ...(form.metStory ? [{ word: form.metStory.split(" ").find(w=>w.length>4)?.toUpperCase().replace(/[^A-Z]/g,"")||"LOVE", clue: `Related to how they met` }] : []),
           ...(form.degree ? [{ word: form.degree.split(" ")[0].toUpperCase().replace(/[^A-Z]/g,""), clue: `What ${name} studied` }] : []),
           ...(form.job ? [{ word: form.job.split(" ")[0].toUpperCase().replace(/[^A-Z]/g,""), clue: `${name}'s career or next chapter` }] : []),
-          ...hobbies.slice(0,3).map(h=>({ word: h.toUpperCase().replace(/[^A-Z]/g,""), clue: isCouple ? `Something they love doing together` : `One of ${name}'s favourite hobbies` })),
+          ...hobbies.slice(0,3).map(h=>({ word: h.toUpperCase().replace(/[^A-Z]/g,""), clue: isCouple ? `Something they love doing together` : `One of ${name}'s favorite hobbies` })),
           ...favs.slice(0,2).map(f=>({ word: f.toUpperCase().replace(/[^A-Z]/g,""), clue: `Something ${displayName} loves` })),
           { word: "CELEBRATE", clue: "What we're all here to do!" },
         ].filter(p=>p.word && p.word.length>=3).slice(0,10)
@@ -51,7 +51,7 @@ function generateGameData(gameId, form) {
           { question: `When is ${name}'s baby due?`, options: shuffle([form.dueDate||"April 2025","June 2025","August 2025","Next year"]), correct:"A" },
           { question: `What gender is the baby?`, options: shuffle([form.babyGender||"Surprise!","Boy","Girl","Twins!"]), correct:"A" },
           { question: `What is the baby's name (if known)?`, options: shuffle([form.babyName||"Still a secret!","Oliver","Sophie","James"]), correct:"A" },
-          { question: `What is ${name}'s favourite thing?`, options: shuffle([favs[0]||"chocolate","salad","silence","cold weather"]), correct:"A" },
+          { question: `What is ${name}'s favorite thing?`, options: shuffle([favs[0]||"chocolate","salad","silence","cold weather"]), correct:"A" },
           { question: `What does ${name} love doing?`, options: shuffle([hobbies[0]||"relaxing","extreme sports","sky diving","tax returns"]), correct:"A" },
           { question: `Where is today's baby shower being held?`, options: shuffle([venue,"the moon","underwater","a volcano"]), correct:"A" },
           { question: `${name} is most excited about...`, options: shuffle(["becoming a mum","the sleepless nights","nappy changes","losing baby weight"]), correct:"A" },
@@ -60,13 +60,13 @@ function generateGameData(gameId, form) {
           { question: `How did ${name} and ${partner||"their partner"} meet?`, options: shuffle([form.metStory||"through friends","online","at school","at work"]), correct:"A" },
           { question: `How long have they been together?`, options: shuffle([form.years?`${form.years} years`:"A few years","1 year","10 years","25 years"]), correct:"A" },
           { question: `What do they love doing together?`, options: shuffle([hobbies[0]||"travelling","arguing","doing taxes","ignoring each other"]), correct:"A" },
-          { question: `What is their shared favourite thing?`, options: shuffle([favs[0]||"good food","broccoli","Mondays","early mornings"]), correct:"A" },
+          { question: `What is their shared favorite thing?`, options: shuffle([favs[0]||"good food","broccoli","Mondays","early mornings"]), correct:"A" },
           { question: `Where is today's celebration?`, options: shuffle([venue,"outer space","underwater","a submarine"]), correct:"A" },
           { question: `${name} would describe ${partner||"their partner"} as...`, options: shuffle(["their soulmate","their nemesis","their accountant","their dentist"]), correct:"A" },
           { question: `Their friends would describe them as...`, options: shuffle(["couple goals","total opposites","always arguing","strangers"]), correct:"A" },
           { question: `One thing they always do together is...`, options: shuffle([hobbies[1]||hobbies[0]||"laugh together","fight over the remote","forget anniversaries","ignore each other"]), correct:"A" },
         ] : [
-          { question: `What is ${name}'s favourite hobby?`, options: shuffle([hobbies[0]||"reading","skydiving","knitting","chess"]), correct:"A" },
+          { question: `What is ${name}'s favorite hobby?`, options: shuffle([hobbies[0]||"reading","skydiving","knitting","chess"]), correct:"A" },
           { question: `Which of these does ${name} love most?`, options: shuffle([favs[0]||"coffee","broccoli","silence","Mondays"]), correct:"A" },
           { question: `How old is ${name}${age?` (turning ${form.age})`:""}?`, options: shuffle([form.age||"forever young",String(Number(form.age||0)+5),String(Number(form.age||0)-2),"18 forever"]).slice(0,4), correct:"A" },
           { question: `${name} works as / studied...`, options: shuffle([form.job||form.degree||"something amazing","astronaut","professional napper","time traveller"]), correct:"A" },
@@ -127,7 +127,7 @@ function generateGameData(gameId, form) {
           { question: `Where did ${name} and ${partner||"their partner"} meet?`, options: shuffle([form.metStory||"through mutual friends","online","at school","at a party"]), correct:"A" },
           { question: `How long have ${name} & ${partner||"partner"} been together?`, options: shuffle([form.years?`${form.years} years`:"A few years","1 year","20 years","30 years"]), correct:"A" },
           { question: `What do they enjoy doing together?`, options: shuffle([hobbies[0]||"travelling","doing nothing","ignoring each other","arguing"]), correct:"A" },
-          { question: `Their favourite thing together is...`, options: shuffle([favs[0]||"good food","watching paint dry","traffic jams","bad weather"]), correct:"A" },
+          { question: `Their favorite thing together is...`, options: shuffle([favs[0]||"good food","watching paint dry","traffic jams","bad weather"]), correct:"A" },
           { question: `${name} would describe ${partner||"their partner"} as...`, options: shuffle(["my soulmate","my accountant","my nemesis","a stranger"]), correct:"A" },
           { question: `What is today's celebration for?`, options: shuffle([form.eventType.replace(/_/g," "),"board meeting","job interview","Monday blues"]), correct:"A" },
           { question: `Where is today's event?`, options: shuffle([venue,"the moon","a submarine","a haunted house"]), correct:"A" },
@@ -137,7 +137,7 @@ function generateGameData(gameId, form) {
           { question: `Is the baby a boy or a girl?`, options: shuffle([form.babyGender||"It's a surprise!","Boy","Girl","Twins"]), correct:"A" },
           { question: `What is the baby's name?`, options: shuffle([form.babyName||"Shhh, it's a secret!","Oliver","Charlotte","James"]), correct:"A" },
           { question: `What is ${name} most excited about?`, options: shuffle(["being a mum!","sleepless nights","nappy changes","losing sleep"]), correct:"A" },
-          { question: `${name}'s favourite thing is...`, options: shuffle([favs[0]||"chocolate","cold showers","diets","Mondays"]), correct:"A" },
+          { question: `${name}'s favorite thing is...`, options: shuffle([favs[0]||"chocolate","cold showers","diets","Mondays"]), correct:"A" },
           { question: `${name} loves to...`, options: shuffle([hobbies[0]||"relax","do extreme sports","go sky diving","do taxes"]), correct:"A" },
           { question: `${name}'s friends describe her as...`, options: shuffle(["glowing & amazing","always tired","never smiles","hates babies"]), correct:"A" },
           { question: `Where is today's shower?`, options: shuffle([venue,"outer space","underwater","a treehouse"]), correct:"A" },
@@ -204,7 +204,7 @@ function generateGameData(gameId, form) {
           `${name} always says "${partner||"partner"} is so ___."`,
           `Their friends would describe them as ___.`,
           `The secret to their relationship is ___.`,
-          `${name}'s favourite thing about ${partner||"their partner"} is ___.`,
+          `${name}'s favorite thing about ${partner||"their partner"} is ___.`,
           `In 10 years, they'll be ___.`,
         ] : isBaby ? [
           `${name} is most excited about ___.`,
@@ -275,9 +275,9 @@ const EVENT_TYPES = [
 
 /* ── Games ───────────────────────────────────────────────────────────── */
 const GAMES = [
-  { id: "wordsearch", label: "Word Search", emoji: "🔍", desc: "Hidden words based on their favourite things" },
+  { id: "wordsearch", label: "Word Search", emoji: "🔍", desc: "Hidden words based on their favorite things" },
   { id: "crossword", label: "Crossword", emoji: "✏️", desc: "Clues all about the celebrant" },
-  { id: "quiz", label: "Who Knows Them Best?", emoji: "🏆", desc: "Quiz questions about the guest of honour" },
+  { id: "quiz", label: "Who Knows Them Best?", emoji: "🏆", desc: "Quiz questions about the celebrant(s)" },
   { id: "thisorthat", label: "This or That", emoji: "🤔", desc: "Fun preference choices about the celebrant" },
   { id: "trivia", label: "Celebrant Trivia", emoji: "💡", desc: "Facts and trivia about their life" },
   { id: "bingo", label: "Party Bingo", emoji: "🎱", desc: "Custom bingo cards for the event" },
@@ -437,15 +437,15 @@ textarea { resize: vertical; min-height: 90px; }
 .sh-clue { padding: 14px 18px; border-radius: 14px; border: 2px solid #e9d5ff; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
 .sh-num { font-family: 'Pacifico', cursive; font-size: 22px; color: var(--purple); flex-shrink: 0; }
 .sh-text { font-weight: 700; font-size: 14px; color: var(--dark); line-height: 1.55; }
-/* Favours section */
-.favours-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; }
-.favour-card { background: white; border-radius: 20px; padding: 22px 20px; border: 2.5px solid #e9d5ff; transition: all 0.2s; }
-.favour-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(155,93,229,0.1); }
-.favour-emoji { font-size: 32px; margin-bottom: 10px; }
-.favour-title { font-weight: 900; font-size: 16px; color: var(--dark); margin-bottom: 6px; }
-.favour-ideas { list-style: none; }
-.favour-ideas li { font-size: 13px; font-weight: 600; color: #6b7280; padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; }
-.favour-ideas li::before { content: '✦'; color: var(--purple); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
+/* Favors section */
+.favors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; }
+.favor-card { background: white; border-radius: 20px; padding: 22px 20px; border: 2.5px solid #e9d5ff; transition: all 0.2s; }
+.favor-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(155,93,229,0.1); }
+.favor-emoji { font-size: 32px; margin-bottom: 10px; }
+.favor-title { font-weight: 900; font-size: 16px; color: var(--dark); margin-bottom: 6px; }
+.favor-ideas { list-style: none; }
+.favor-ideas li { font-size: 13px; font-weight: 600; color: #6b7280; padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; }
+.favor-ideas li::before { content: '✦'; color: var(--purple); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
 /* Donation */
 .donation-bar { background: linear-gradient(135deg, #fff5fb, #f3e8ff); border-radius: 24px; padding: 32px 36px; border: 2.5px solid #e9d5ff; text-align: center; max-width: 600px; margin: 0 auto; }
 .donation-title { font-family: 'Pacifico', cursive; font-size: 24px; color: var(--dark); margin-bottom: 8px; }
@@ -468,7 +468,7 @@ footer { background: var(--dark); color: white; padding: 40px 24px; text-align: 
 /* Misc */
 .divider { height: 4px; background: var(--grad); border-radius: 99px; margin: 0 24px; opacity: 0.2; }
 @media print {
-  .nav, .hero, .how-section, .games-section, .gen-form-section, footer, .print-actions, .output-tabs, .donation-section, .favours-section { display: none !important; }
+  .nav, .hero, .how-section, .games-section, .gen-form-section, footer, .print-actions, .output-tabs, .donation-section, .favors-section { display: none !important; }
   .print-sheet { border: none; padding: 20px; box-shadow: none; }
 }
 .ribbon { background: var(--grad); color: white; text-align: center; padding: 10px; font-weight: 800; font-size: 13px; }
@@ -764,14 +764,14 @@ function TriviaSheet({ data, celebrant }) {
   );
 }
 
-/* ── Favour Ideas ─────────────────────────────────────────────────── */
+/* ── Favor Ideas ─────────────────────────────────────────────────── */
 const FAVOUR_CATEGORIES = [
   {
     emoji: "🎁", title: "Party Bag Essentials",
     ideas: ["Mini notebooks & pens", "Sticker sheets", "Temporary tattoos", "Mini puzzles or games", "Sweet treats in branded bags", "Personalised bookmarks"]
   },
   {
-    emoji: "🍬", title: "Edible Favours",
+    emoji: "🍬", title: "Edible Favors",
     ideas: ["Custom cookie boxes", "Mini jars of sweets", "Personalised chocolate bars", "Cake pops in cellophane", "Popcorn bags with custom labels", "Branded candy bags"]
   },
   {
@@ -783,7 +783,7 @@ const FAVOUR_CATEGORIES = [
     ideas: ["Mini photo frames", "Custom keyrings", "Personalised ornaments", "Memory jars with notes", "Custom magnets", "Engraved bookmarks"]
   },
   {
-    emoji: "🎨", title: "Activity Favours",
+    emoji: "🎨", title: "Activity Favors",
     ideas: ["Colouring books (kids)", "DIY craft kits", "Mini paint sets", "Puzzle books", "Card games", "Origami kits"]
   },
   {
@@ -801,8 +801,8 @@ function getEventFields(eventType) {
     birthday_kids: [
       { key:"name", label:"Child's Name", placeholder:"e.g. Amara", required:true },
       { key:"age", label:"Turning How Old?", placeholder:"e.g. 7" },
-      { key:"hobbies", label:"Favourite Activities", placeholder:"e.g. football, drawing, swimming" },
-      { key:"favourites", label:"Favourite Things (characters, food, colours)", placeholder:"e.g. Peppa Pig, pizza, purple" },
+      { key:"hobbies", label:"Favorite Activities", placeholder:"e.g. football, drawing, swimming" },
+      { key:"favorites", label:"Favorite Things (characters, food, colours)", placeholder:"e.g. Peppa Pig, pizza, purple" },
       { key:"bestFriends", label:"Names of Close Friends", placeholder:"e.g. Maya, Leo, Zara" },
       venue,
       aboutAll,
@@ -811,7 +811,7 @@ function getEventFields(eventType) {
       { key:"name", label:"Celebrant's Name", placeholder:"e.g. Funmi", required:true },
       { key:"age", label:"Milestone Age", placeholder:"e.g. 30, 40, 50" },
       { key:"hobbies", label:"Hobbies & Passions", placeholder:"e.g. wine tasting, hiking, yoga" },
-      { key:"favourites", label:"Favourite Things", placeholder:"e.g. prosecco, true crime, sunsets" },
+      { key:"favorites", label:"Favorite Things", placeholder:"e.g. prosecco, true crime, sunsets" },
       { key:"job", label:"What Do They Do?", placeholder:"e.g. nurse, teacher, entrepreneur" },
       { key:"partner", label:"Partner / Spouse Name (if any)", placeholder:"e.g. David" },
       venue,
@@ -824,7 +824,7 @@ function getEventFields(eventType) {
       { key:"babyGender", label:"Baby's Gender (if known)", placeholder:"e.g. Girl, Boy, or Surprise!" },
       { key:"babyName", label:"Baby's Name (if chosen)", placeholder:"e.g. Zara, or keeping it secret!" },
       { key:"hobbies", label:"Mum's Hobbies & Interests", placeholder:"e.g. baking, reading, fitness" },
-      { key:"favourites", label:"Mum's Favourite Things", placeholder:"e.g. chocolate, bubble baths, rom-coms" },
+      { key:"favorites", label:"Mum's Favorite Things", placeholder:"e.g. chocolate, bubble baths, rom-coms" },
       venue,
       aboutAll,
     ],
@@ -834,7 +834,7 @@ function getEventFields(eventType) {
       { key:"metStory", label:"How Did They Meet?", placeholder:"e.g. at university, on a dating app, through friends" },
       { key:"weddingDate", label:"Wedding Date", placeholder:"e.g. 14th June 2025" },
       { key:"hobbies", label:"Things They Love Doing Together", placeholder:"e.g. travelling, cooking, hiking" },
-      { key:"favourites", label:"Shared Favourite Things", placeholder:"e.g. Italian food, sunsets, karaoke" },
+      { key:"favorites", label:"Shared Favorite Things", placeholder:"e.g. Italian food, sunsets, karaoke" },
       { key:"funFacts", label:"Funny or Sweet Stories About the Couple", placeholder:"e.g. she always steals the duvet, he proposed at their first holiday destination...", type:"textarea", full:true },
       venue,
     ],
@@ -844,8 +844,8 @@ function getEventFields(eventType) {
       { key:"years", label:"How Many Years Together?", placeholder:"e.g. 10, 25, 50" },
       { key:"metStory", label:"How Did They Meet?", placeholder:"e.g. childhood sweethearts, blind date, at work" },
       { key:"hobbies", label:"Things They Love Doing Together", placeholder:"e.g. dancing, travelling, gardening" },
-      { key:"favourites", label:"Their Favourite Memories Together", placeholder:"e.g. honeymoon in Santorini, that camping disaster of 2015..." },
-      { key:"funFacts", label:"Funny & Sweet Stories", placeholder:"e.g. he still can't cook her favourite meal, she always wins at cards...", type:"textarea", full:true },
+      { key:"favorites", label:"Their Favorite Memories Together", placeholder:"e.g. honeymoon in Santorini, that camping disaster of 2015..." },
+      { key:"funFacts", label:"Funny & Sweet Stories", placeholder:"e.g. he still can't cook her favorite meal, she always wins at cards...", type:"textarea", full:true },
       venue,
     ],
     graduation: [
@@ -853,7 +853,7 @@ function getEventFields(eventType) {
       { key:"degree", label:"What Did They Study?", placeholder:"e.g. Medicine at UCL" },
       { key:"age", label:"Age (optional)", placeholder:"e.g. 22" },
       { key:"hobbies", label:"Hobbies & Interests", placeholder:"e.g. photography, football, coding" },
-      { key:"favourites", label:"Favourite Things", placeholder:"e.g. Nando's, memes, road trips" },
+      { key:"favorites", label:"Favorite Things", placeholder:"e.g. Nando's, memes, road trips" },
       { key:"job", label:"What's Next? (job / plans)", placeholder:"e.g. starting at Goldman Sachs, travelling, medical residency" },
       venue,
       aboutAll,
@@ -864,14 +864,14 @@ function getEventFields(eventType) {
       { key:"job", label:"What Did They Do? (career)", placeholder:"e.g. Head teacher for 35 years" },
       { key:"years", label:"How Many Years in the Role?", placeholder:"e.g. 30 years" },
       { key:"hobbies", label:"Hobbies & Plans in Retirement", placeholder:"e.g. gardening, cruises, grandchildren" },
-      { key:"favourites", label:"Favourite Things", placeholder:"e.g. tea, Coronation Street, golf" },
+      { key:"favorites", label:"Favorite Things", placeholder:"e.g. tea, Coronation Street, golf" },
       venue,
       aboutAll,
     ],
     holiday: [
       { key:"name", label:"Host / Organiser's Name", placeholder:"e.g. The Johnson Family", required:true },
       { key:"hobbies", label:"Party Theme or Style", placeholder:"e.g. ugly jumper, Secret Santa, festive games" },
-      { key:"favourites", label:"Group's Favourite Things", placeholder:"e.g. mince pies, mulled wine, charades" },
+      { key:"favorites", label:"Group's Favorite Things", placeholder:"e.g. mince pies, mulled wine, charades" },
       venue,
       { key:"funFacts", label:"Tell Us About Your Group", placeholder:"e.g. annual work party, family Christmas, friends gathering...", type:"textarea", full:true },
     ],
@@ -879,7 +879,7 @@ function getEventFields(eventType) {
       { key:"name", label:"Celebrant / Host's Name", placeholder:"e.g. Chiamaka", required:true },
       { key:"age", label:"Age (optional)", placeholder:"e.g. 21" },
       { key:"hobbies", label:"Hobbies & Interests", placeholder:"e.g. cooking, music, fitness" },
-      { key:"favourites", label:"Favourite Things", placeholder:"e.g. dogs, sushi, reality TV" },
+      { key:"favorites", label:"Favorite Things", placeholder:"e.g. dogs, sushi, reality TV" },
       venue,
       aboutAll,
     ],
@@ -890,7 +890,7 @@ function getEventFields(eventType) {
 }
 export default function App() {
   const [screen, setScreen] = useState("home");
-  const [form, setForm] = useState({ name: "", age: "", eventType: "birthday_kids", hobbies: "", favourites: "", funFacts: "", venue: "" });
+  const [form, setForm] = useState({ name: "", age: "", eventType: "birthday_kids", hobbies: "", favorites: "", funFacts: "", venue: "" });
   const [selectedGames, setSelectedGames] = useState(["wordsearch", "quiz", "thisorthat"]);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
@@ -901,6 +901,23 @@ export default function App() {
 
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const toggleGame = id => setSelectedGames(g => g.includes(id) ? g.filter(x => x !== id) : [...g, id]);
+
+  const handlePrint = () => {
+    const eventLabel = {
+      birthday_kids: "Birthday", birthday_adult: "Birthday",
+      baby_shower: "Baby Shower", wedding: "Wedding",
+      anniversary: "Anniversary", graduation: "Graduation",
+      retirement: "Retirement", holiday: "Holiday Party", general: "Party",
+    }[form.eventType] || "Party";
+    const name = form.name?.trim() || "Celebrant";
+    const partner = form.partner?.trim();
+    const displayName = partner ? `${name} & ${partner}` : name;
+    const gameLabel = GAMES.find(g => g.id === activeTab)?.label || "Games";
+    const prevTitle = document.title;
+    document.title = `${displayName}'s ${eventLabel} - ${gameLabel}`;
+    window.print();
+    setTimeout(() => { document.title = prevTitle; }, 1000);
+  };
 
   const generate = () => {
     if (!form.name.trim()) { alert("Please enter the celebrant's name!"); return; }
@@ -950,7 +967,7 @@ export default function App() {
         <div className="nav-logo" onClick={() => setScreen("home")} style={{ cursor: "pointer" }}>PartyPrintables</div>
         <div className="nav-links">
           <button className="nav-link" onClick={() => { setScreen("home"); setTimeout(() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }), 100); }}>How it works</button>
-          <button className="nav-link" onClick={() => { setScreen("home"); setTimeout(() => document.getElementById("favours")?.scrollIntoView({ behavior: "smooth" }), 100); }}>Favour Ideas</button>
+          <button className="nav-link" onClick={() => { setScreen("home"); setTimeout(() => document.getElementById("favors")?.scrollIntoView({ behavior: "smooth" }), 100); }}>Favor Ideas</button>
           <button className="nav-link nav-cta" onClick={() => setScreen("generator")}>Create Games 🎲</button>
         </div>
       </nav>
@@ -966,7 +983,7 @@ export default function App() {
             <div className="hero-content">
               <div className="hero-badge">✨ Personalised party games in seconds</div>
               <h1 className="hero-title">Make Every Party Unforgettable!</h1>
-              <p className="hero-sub">Enter details about the guest of honour and we'll instantly generate custom word searches, crosswords, quizzes and more — all personalised just for them.</p>
+              <p className="hero-sub">Enter details about the celebrant(s) and we'll instantly generate custom word searches, crosswords, quizzes and more — all personalised just for them.</p>
               <div className="hero-btns">
                 <button className="btn btn-primary" onClick={() => setScreen("generator")}>🎲 Create My Games</button>
                 <button className="btn btn-secondary" onClick={() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })}>See how it works</button>
@@ -981,7 +998,7 @@ export default function App() {
             <p className="section-sub">No design skills needed. Just fill in the details and download print-ready games instantly.</p>
             <div className="steps">
               {[
-                { num: "1", icon: "📝", title: "Tell us about them", desc: "Enter the celebrant's name, age, hobbies and favourite things." },
+                { num: "1", icon: "📝", title: "Tell us about them", desc: "Enter the celebrant's name, age, hobbies and favorite things." },
                 { num: "2", icon: "🤖", title: "AI creates the games", desc: "Our AI generates fully personalised, unique games in seconds." },
                 { num: "3", icon: "🖨️", title: "Print & play!", desc: "Download or print straight from your browser. Zero fuss." },
                 { num: "4", icon: "🎊", title: "Everyone wins!", desc: "Guests love personalised games. Make memories that last." },
@@ -1019,17 +1036,17 @@ export default function App() {
 
           <div className="divider" />
 
-          {/* Party Favours */}
-          <section className="section favours-section" id="favours">
-            <div className="section-label">Party favour ideas</div>
-            <h2 className="section-title">Favour & Gift Ideas 🎁</h2>
+          {/* Party Favors */}
+          <section className="section favors-section" id="favors">
+            <div className="section-label">Party favor ideas</div>
+            <h2 className="section-title">Favor & Gift Ideas 🎁</h2>
             <p className="section-sub">Stuck on what to give guests? Here are ideas for every type of party, from kids' birthdays to weddings and everything in between.</p>
-            <div className="favours-grid">
+            <div className="favors-grid">
               {FAVOUR_CATEGORIES.map(f => (
-                <div key={f.title} className="favour-card">
-                  <div className="favour-emoji">{f.emoji}</div>
-                  <div className="favour-title">{f.title}</div>
-                  <ul className="favour-ideas">
+                <div key={f.title} className="favor-card">
+                  <div className="favor-emoji">{f.emoji}</div>
+                  <div className="favor-title">{f.title}</div>
+                  <ul className="favor-ideas">
                     {f.ideas.map(i => <li key={i}>{i}</li>)}
                   </ul>
                 </div>
@@ -1043,15 +1060,15 @@ export default function App() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px,1fr))", gap: 16 }}>
                 {[
                   { event: "Kids Birthday 🎂", ideas: ["Personalised water bottle", "Activity book set", "LEGO mini set", "Art & craft bundle", "Character backpack", "Sweet hamper"] },
-                  { event: "Adult Birthday 🥳", ideas: ["Experience voucher (spa, cooking class)", "Personalised wine/spirit bottle", "Book by their favourite author", "Subscription box", "Custom jewellery", "Luxury candle set"] },
+                  { event: "Adult Birthday 🥳", ideas: ["Experience voucher (spa, cooking class)", "Personalised wine/spirit bottle", "Book by their favorite author", "Subscription box", "Custom jewellery", "Luxury candle set"] },
                   { event: "Baby Shower 🍼", ideas: ["Milestone blanket", "Personalised name puzzle", "Baby book keepsake", "Organic toiletries set", "Knitted booties", "Nappy cake"] },
                   { event: "Wedding 💍", ideas: ["Personalised champagne flutes", "Custom recipe book", "Experience day voucher", "Memory box", "Luxury kitchen gadget", "Weekend getaway voucher"] },
                   { event: "Graduation 🎓", ideas: ["Professional notebook set", "Smart luggage tag", "LinkedIn premium gift card", "Personalised pen", "Money wallet with cash", "Tech accessory bundle"] },
                   { event: "Retirement 🌴", ideas: ["Garden tools set", "World travel scratch map", "Books by bucket list destination", "Spa day experience", "Personalised memoir kit", "Cruise voucher"] },
                 ].map(ev => (
-                  <div key={ev.event} className="favour-card">
-                    <div className="favour-title" style={{ fontSize: 15 }}>{ev.event}</div>
-                    <ul className="favour-ideas" style={{ marginTop: 8 }}>
+                  <div key={ev.event} className="favor-card">
+                    <div className="favor-title" style={{ fontSize: 15 }}>{ev.event}</div>
+                    <ul className="favor-ideas" style={{ marginTop: 8 }}>
                       {ev.ideas.map(i => <li key={i}>{i}</li>)}
                     </ul>
                   </div>
@@ -1068,7 +1085,7 @@ export default function App() {
               <div className="donation-title">❤️ Enjoying PartyPrintables?</div>
               <p className="donation-sub">This tool is completely free. If it saved you time and made your party special, consider buying us a coffee! Every donation keeps this free for everyone.</p>
               <div className="donation-amounts">
-                {["£2", "£5", "£10", "£20"].map(a => (
+                {["$2", "$5", "$10", "$20"].map(a => (
                   <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`} onClick={() => setDonationAmt(a)}>{a}</button>
                 ))}
               </div>
@@ -1153,7 +1170,7 @@ export default function App() {
                 <div style={{ fontSize: 14, color: "#6b7280", fontWeight: 700 }}>{selectedGames.length} games generated · Click a tab to view each game</div>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
-                <button className="btn btn-primary btn-sm" onClick={() => window.print()}>🖨️ Print This Game</button>
+                <button className="btn btn-primary btn-sm" onClick={handlePrint}>🖨️ Print This Game</button>
                 <button className="btn btn-secondary btn-sm" onClick={() => setScreen("generator")}>← Edit Details</button>
               </div>
             </div>
@@ -1176,16 +1193,16 @@ export default function App() {
             </div>
 
             <div className="print-actions">
-              <button className="btn btn-primary btn-sm" onClick={() => window.print()}>🖨️ Print / Save as PDF</button>
+              <button className="btn btn-primary btn-sm" onClick={handlePrint}>🖨️ Print / Save as PDF</button>
               <button className="btn btn-secondary btn-sm" onClick={() => { setScreen("generator"); }}>🔄 Generate New Pack</button>
             </div>
 
-            {/* Favour ideas teaser */}
+            {/* Favor ideas teaser */}
             <div style={{ marginTop: 40, background: "linear-gradient(135deg,#fff5fb,#f3e8ff)", borderRadius: 20, padding: "28px 24px", border: "2px solid #e9d5ff" }}>
-              <div style={{ fontFamily: "'Pacifico', cursive", fontSize: 22, color: "var(--dark)", marginBottom: 8 }}>🎁 Need Favour Ideas Too?</div>
-              <div style={{ fontSize: 14, color: "#6b7280", fontWeight: 700, marginBottom: 16 }}>Browse our curated party favour and gift ideas for every occasion.</div>
-              <button className="btn btn-secondary btn-sm" onClick={() => { setScreen("home"); setTimeout(() => document.getElementById("favours")?.scrollIntoView({ behavior: "smooth" }), 100); }}>
-                Browse Favour Ideas →
+              <div style={{ fontFamily: "'Pacifico', cursive", fontSize: 22, color: "var(--dark)", marginBottom: 8 }}>🎁 Need Favor Ideas Too?</div>
+              <div style={{ fontSize: 14, color: "#6b7280", fontWeight: 700, marginBottom: 16 }}>Browse our curated party favor and gift ideas for every occasion.</div>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setScreen("home"); setTimeout(() => document.getElementById("favors")?.scrollIntoView({ behavior: "smooth" }), 100); }}>
+                Browse Favor Ideas →
               </button>
             </div>
 
@@ -1195,7 +1212,7 @@ export default function App() {
                 <div className="donation-title">❤️ Did this save your party planning?</div>
                 <p className="donation-sub">PartyPrintables is free. If you loved it, please consider a small donation to keep it running!</p>
                 <div className="donation-amounts">
-                  {["£2", "£5", "£10", "£20"].map(a => (
+                  {["$2", "$5", "$10", "$20"].map(a => (
                     <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`} onClick={() => setDonationAmt(a)}>{a}</button>
                   ))}
                 </div>
