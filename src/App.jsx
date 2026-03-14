@@ -662,11 +662,6 @@ function QuizSheet({ data, celebrant }) {
           </div>
         </div>
       ))}
-      {data.answers && (
-        <div style={{ marginTop: 20, padding: 16, background: "#f9f0ff", borderRadius: 14, fontSize: 13, fontWeight: 700 }}>
-          <strong style={{ color: "var(--purple)" }}>Answers:</strong> {data.answers.join(" | ")}
-        </div>
-      )}
     </div>
   );
 }
@@ -683,11 +678,6 @@ function ThisOrThatSheet({ data, celebrant }) {
           <div className="tot-opt">{p.b}</div>
         </div>
       ))}
-      {data.answers && (
-        <div style={{ marginTop: 16, padding: 14, background: "#f9f0ff", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
-          <strong style={{ color: "var(--purple)" }}>Answers:</strong> {data.answers.join(", ")}
-        </div>
-      )}
     </div>
   );
 }
@@ -718,11 +708,6 @@ function FillBlankSheet({ data, celebrant }) {
           {i + 1}. {s.replace("___", "")} <span className="fib-blank" />
         </div>
       ))}
-      {data.answers && (
-        <div style={{ marginTop: 16, padding: 14, background: "#f9f0ff", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
-          <strong style={{ color: "var(--purple)" }}>Answers:</strong> {data.answers.join(" | ")}
-        </div>
-      )}
     </div>
   );
 }
@@ -760,6 +745,101 @@ function TriviaSheet({ data, celebrant }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── Answer Key Sheet ────────────────────────────────────────────── */
+function AnswerKeySheet({ gameData, selectedGames, celebrant }) {
+  const gamesWithAnswers = selectedGames.filter(gid => {
+    const d = gameData[gid] || {};
+    return d.answers || d.pairs || d.questions || d.words || d.clues;
+  });
+
+  return (
+    <div className="print-sheet">
+      <div style={{ textAlign:"center", marginBottom:24, paddingBottom:16, borderBottom:"2.5px dashed #e9d5ff" }}>
+        <h2 style={{ marginBottom:4 }}>🔑 Answer Key</h2>
+        <div className="sheet-sub" style={{ marginBottom:0 }}>For the host only — {celebrant}'s Party Pack</div>
+        <div style={{ fontSize:12, fontWeight:700, color:"#ef4444", marginTop:6 }}>⚠️ Don't show this to guests!</div>
+      </div>
+
+      {gamesWithAnswers.map(gid => {
+        const d = gameData[gid] || {};
+        const g = { wordsearch:"🔍 Word Search", crossword:"✏️ Crossword", quiz:"🏆 Who Knows Them Best?", thisorthat:"🤔 This or That", trivia:"💡 Trivia", bingo:"🎱 Bingo", fillinblank:"😄 Fill in the Blank", scavenger:"🗺️ Scavenger Hunt" }[gid];
+
+        return (
+          <div key={gid} style={{ marginBottom:24, paddingBottom:20, borderBottom:"1px solid #f0e6ff" }}>
+            <div style={{ fontFamily:"'Pacifico', cursive", fontSize:18, color:"var(--purple)", marginBottom:12 }}>{g}</div>
+
+            {/* Word search — list the words */}
+            {gid==="wordsearch" && d.words && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                {d.words.map((w,i) => <span key={i} style={{ background:"#f3e8ff", padding:"3px 10px", borderRadius:99, fontSize:13, fontWeight:800, color:"var(--purple)" }}>{w}</span>)}
+              </div>
+            )}
+
+            {/* Crossword — across and down answers */}
+            {gid==="crossword" && d.pairs && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                {d.pairs.map((p,i) => (
+                  <div key={i} style={{ fontSize:13, fontWeight:700, color:"#374151" }}>
+                    <span style={{ color:"var(--purple)", fontWeight:900 }}>{i+1}.</span> {p.word}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Quiz / Trivia — numbered answers */}
+            {(gid==="quiz"||gid==="trivia") && d.questions && (
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(160px,1fr))", gap:6 }}>
+                {d.questions.map((q,i) => {
+                  const correctIdx = q.options?.findIndex(o => o === q.answer || o === q.correct);
+                  const letter = correctIdx >= 0 ? String.fromCharCode(65+correctIdx) : "A";
+                  return (
+                    <div key={i} style={{ fontSize:13, fontWeight:700, color:"#374151" }}>
+                      <span style={{ color:"var(--purple)", fontWeight:900 }}>{i+1}.</span> {letter} — {q.answer||q.options?.[0]||""}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* This or That — their choices */}
+            {gid==="thisorthat" && d.pairs && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                {d.pairs.map((p,i) => (
+                  <div key={i} style={{ fontSize:13, fontWeight:700, color:"#374151" }}>
+                    <span style={{ color:"var(--purple)", fontWeight:900 }}>{i+1}.</span> {p.answer||p.a}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Fill in blank — answers */}
+            {gid==="fillinblank" && d.answers && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                {d.answers.map((a,i) => (
+                  <div key={i} style={{ fontSize:13, fontWeight:700, color:"#374151" }}>
+                    <span style={{ color:"var(--purple)", fontWeight:900 }}>{i+1}.</span> {a}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Scavenger hunt — locations */}
+            {gid==="scavenger" && d.clues && (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                {d.clues.map((c,i) => (
+                  <div key={i} style={{ fontSize:13, fontWeight:700, color:"#374151" }}>
+                    <span style={{ color:"var(--purple)", fontWeight:900 }}>Clue {i+1}:</span> 📍 {c.location}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -967,7 +1047,7 @@ export default function App() {
     const name = form.name?.trim() || "Celebrant";
     const partner = form.partner?.trim();
     const displayName = partner ? `${name} & ${partner}` : name;
-    const gameLabel = GAMES.find(g => g.id === activeTab)?.label || "Games";
+    const gameLabel = activeTab === "answerkey" ? "Answer Key" : GAMES.find(g => g.id === activeTab)?.label || "Games";
     const prevTitle = document.title;
     document.title = `${displayName}'s ${eventLabel} - ${gameLabel}`;
     window.print();
@@ -1266,6 +1346,11 @@ export default function App() {
                   </button>
                 );
               })}
+              <button className={`output-tab${activeTab === "answerkey" ? " active" : ""}`}
+                style={{ background: activeTab==="answerkey" ? "#ef4444" : "white", borderColor: activeTab==="answerkey" ? "#ef4444" : "#e9d5ff" }}
+                onClick={() => setActiveTab("answerkey")}>
+                🔑 Answer Key
+              </button>
             </div>
 
             {/* Active sheet — or all sheets when printing all */}
@@ -1276,7 +1361,9 @@ export default function App() {
                       {renderSheet(gid)}
                     </div>
                   ))
-                : activeTab && renderSheet(activeTab)
+                : activeTab === "answerkey"
+                  ? <AnswerKeySheet gameData={gameData} selectedGames={selectedGames} celebrant={form.name} />
+                  : activeTab && renderSheet(activeTab)
               }
             </div>
 
