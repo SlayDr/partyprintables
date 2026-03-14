@@ -2,6 +2,120 @@ import { useState, useRef } from "react";
 
 const FONTS = "https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap";
 
+/* ── Theme System ────────────────────────────────────────────────── */
+const PRESET_THEMES = [
+  // Kids Birthday
+  { id:"cherry",     label:"🍒 Cherry on Top",     emoji:"🍒", colors:["#FF6B9D","#FFE4F0"], pattern:"cherries",   event:["birthday_kids","birthday_adult","general"] },
+  { id:"minnie",     label:"🐭 Minnie Mouse",       emoji:"🐭", colors:["#D40000","#FFD0D0"], pattern:"polkadots",  event:["birthday_kids","general"] },
+  { id:"superhero",  label:"🦸 Superhero",          emoji:"🦸", colors:["#1565C0","#FFD700"], pattern:"stars",      event:["birthday_kids","birthday_adult","general"] },
+  { id:"unicorn",    label:"🦄 Unicorn",            emoji:"🦄", colors:["#C77DFF","#FFD6FF"], pattern:"unicorn",    event:["birthday_kids","baby_shower","general"] },
+  { id:"dinosaur",   label:"🦕 Dinosaur",           emoji:"🦕", colors:["#2D6A4F","#D8F3DC"], pattern:"dino",       event:["birthday_kids","general"] },
+  { id:"princess",   label:"👸 Princess",           emoji:"👸", colors:["#FF69B4","#FFF0F8"], pattern:"crowns",     event:["birthday_kids","general"] },
+  { id:"space",      label:"🚀 Outer Space",        emoji:"🚀", colors:["#1a1a2e","#E0E0FF"], pattern:"space",      event:["birthday_kids","birthday_adult","general"] },
+  { id:"jungle",     label:"🌿 Jungle Safari",      emoji:"🌿", colors:["#40916C","#D8F3DC"], pattern:"jungle",     event:["birthday_kids","general"] },
+  // Adult Birthday
+  { id:"tropical",   label:"🌺 Tropical",           emoji:"🌺", colors:["#FF9A3C","#FFF0E0"], pattern:"tropical",   event:["birthday_adult","retirement","general"] },
+  { id:"gatsby",     label:"✨ Great Gatsby",       emoji:"✨", colors:["#B8860B","#FFFDE7"], pattern:"gatsby",     event:["birthday_adult","wedding","anniversary"] },
+  { id:"hollywood",  label:"🎬 Hollywood Glam",     emoji:"🎬", colors:["#1a1a1a","#FFD700"], pattern:"stars",      event:["birthday_adult","graduation","general"] },
+  { id:"fiesta",     label:"🎊 Fiesta",             emoji:"🎊", colors:["#FF6B35","#FFF3E0"], pattern:"confetti",   event:["birthday_adult","birthday_kids","general"] },
+  // Baby Shower
+  { id:"baby_blue",  label:"💙 Baby Blue",          emoji:"💙", colors:["#4ECDC4","#E0F7FA"], pattern:"stars",      event:["baby_shower"] },
+  { id:"baby_pink",  label:"🩷 Baby Pink",          emoji:"🩷", colors:["#FF6B9D","#FFE4F0"], pattern:"hearts",     event:["baby_shower"] },
+  { id:"baby_green", label:"🌿 Sage & Natural",     emoji:"🌿", colors:["#52B788","#D8F3DC"], pattern:"jungle",     event:["baby_shower"] },
+  { id:"baby_star",  label:"⭐ Twinkle Twinkle",    emoji:"⭐", colors:["#9B5DE5","#F3E8FF"], pattern:"stars",      event:["baby_shower"] },
+  // Wedding / Anniversary
+  { id:"roses",      label:"🌹 Red Roses",          emoji:"🌹", colors:["#C62828","#FFF0F0"], pattern:"hearts",     event:["wedding","anniversary"] },
+  { id:"garden",     label:"🌸 Garden Party",       emoji:"🌸", colors:["#7B9E6B","#F0FFF0"], pattern:"flowers",    event:["wedding","anniversary","baby_shower"] },
+  { id:"bohemian",   label:"🌙 Boho Chic",          emoji:"🌙", colors:["#8B6914","#FFF8E7"], pattern:"gatsby",     event:["wedding","anniversary"] },
+  { id:"beach",      label:"🌊 Beach Wedding",      emoji:"🌊", colors:["#0077B6","#E0F7FA"], pattern:"tropical",   event:["wedding","anniversary","general"] },
+  // Graduation
+  { id:"grad_blue",  label:"🎓 Classic Blue & Gold",emoji:"🎓", colors:["#1565C0","#FFFDE7"], pattern:"confetti",   event:["graduation"] },
+  { id:"grad_black", label:"⚫ Black & Gold",       emoji:"⚫", colors:["#1a1a1a","#FFFDE7"], pattern:"gatsby",     event:["graduation","retirement"] },
+  // Retirement
+  { id:"travel",     label:"✈️ Let's Travel",       emoji:"✈️", colors:["#0077B6","#E0F7FA"], pattern:"tropical",   event:["retirement","general"] },
+  { id:"garden2",    label:"🌻 Garden Dreams",      emoji:"🌻", colors:["#F4A300","#FFFDE7"], pattern:"flowers",    event:["retirement","general"] },
+  // Holiday
+  { id:"christmas",  label:"🎄 Christmas",          emoji:"🎄", colors:["#C62828","#E8F5E9"], pattern:"stars",      event:["holiday"] },
+  { id:"winter",     label:"❄️ Winter Wonderland",  emoji:"❄️", colors:["#4ECDC4","#E0F7FA"], pattern:"polkadots",  event:["holiday","general"] },
+];
+
+// SVG pattern generators
+function getPatternSVG(pattern, color) {
+  const c = color || "#9B5DE5";
+  const patterns = {
+    polkadots: `<pattern id="pp" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="5" fill="${c}" opacity="0.15"/></pattern>`,
+    stars: `<pattern id="pp" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><text x="20" y="28" font-size="20" text-anchor="middle" opacity="0.12" fill="${c}">★</text></pattern>`,
+    hearts: `<pattern id="pp" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse"><text x="18" y="26" font-size="18" text-anchor="middle" opacity="0.13" fill="${c}">♥</text></pattern>`,
+    confetti: `<pattern id="pp" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><rect x="5" y="5" width="6" height="6" rx="1" fill="${c}" opacity="0.12" transform="rotate(25 8 8)"/><rect x="22" y="20" width="5" height="5" rx="1" fill="${c}" opacity="0.1" transform="rotate(-15 24 22)"/><circle cx="32" cy="8" r="3" fill="${c}" opacity="0.1"/></pattern>`,
+    flowers: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="22" text-anchor="middle" opacity="0.12" fill="${c}">✿</text></pattern>`,
+    cherries: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="20" text-anchor="middle" opacity="0.13" fill="${c}">🍒</text></pattern>`,
+    crowns: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="20" text-anchor="middle" opacity="0.12" fill="${c}">👑</text></pattern>`,
+    dino: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="20" text-anchor="middle" opacity="0.12" fill="${c}">🦕</text></pattern>`,
+    space: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="18" text-anchor="middle" opacity="0.13" fill="${c}">🚀</text><text x="6" y="14" font-size="10" opacity="0.1" fill="${c}">★</text><text x="36" y="38" font-size="8" opacity="0.1" fill="${c}">★</text></pattern>`,
+    jungle: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="22" text-anchor="middle" opacity="0.12" fill="${c}">🌿</text></pattern>`,
+    tropical: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="20" text-anchor="middle" opacity="0.12" fill="${c}">🌺</text></pattern>`,
+    gatsby: `<pattern id="pp" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><polygon points="15,3 17,11 25,11 19,16 21,24 15,19 9,24 11,16 5,11 13,11" fill="${c}" opacity="0.1"/></pattern>`,
+    unicorn: `<pattern id="pp" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><text x="22" y="30" font-size="20" text-anchor="middle" opacity="0.12" fill="${c}">🦄</text></pattern>`,
+  };
+  return patterns[pattern] || patterns.polkadots;
+}
+
+function ThemeBackground({ theme }) {
+  if (!theme) return null;
+  const t = typeof theme === "string"
+    ? PRESET_THEMES.find(p => p.id === theme)
+    : null;
+  const patternName = t?.pattern || "polkadots";
+  const color = t?.colors?.[0] || "#9B5DE5";
+  const bgColor = t?.colors?.[1] || "#FFFFFF";
+  const patternSVG = getPatternSVG(patternName, color);
+  const svgDataUrl = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs>${patternSVG}</defs><rect width="100%" height="100%" fill="${bgColor}"/><rect width="100%" height="100%" fill="url(#pp)"/></svg>`)}`;
+
+  return (
+    <div style={{
+      position:"absolute", inset:0, borderRadius:"inherit",
+      backgroundImage:`url("${svgDataUrl}")`,
+      backgroundRepeat:"repeat", backgroundSize:"auto",
+      pointerEvents:"none", zIndex:0,
+    }}/>
+  );
+}
+
+function ThemeBorder({ theme }) {
+  if (!theme) return null;
+  const t = PRESET_THEMES.find(p => p.id === theme);
+  if (!t) return null;
+  return (
+    <div style={{
+      position:"absolute", inset:0, borderRadius:"inherit", pointerEvents:"none", zIndex:1,
+      border:`3px solid ${t.colors[0]}`,
+    }}/>
+  );
+}
+
+// Custom theme → derive colours from name
+function getCustomTheme(name) {
+  const lower = name.toLowerCase();
+  const colorMap = [
+    { keys:["pink","rose","barbie","flamingo"], colors:["#FF6B9D","#FFE4F0"], pattern:"hearts" },
+    { keys:["blue","ocean","sky","frozen","elsa"], colors:["#4ECDC4","#E0F7FA"], pattern:"stars" },
+    { keys:["green","jungle","safari","dino","dinosaur","forest"], colors:["#40916C","#D8F3DC"], pattern:"jungle" },
+    { keys:["gold","golden","gatsby","glam","luxury"], colors:["#B8860B","#FFFDE7"], pattern:"gatsby" },
+    { keys:["purple","lavender","unicorn","fairy"], colors:["#9B5DE5","#F3E8FF"], pattern:"unicorn" },
+    { keys:["red","fire","spiderman","ladybug","cherry"], colors:["#C62828","#FFF0F0"], pattern:"hearts" },
+    { keys:["orange","autumn","fall","pumpkin","halloween"], colors:["#FF6B35","#FFF3E0"], pattern:"confetti" },
+    { keys:["space","star","galaxy","moon","cosmic"], colors:["#1a1a2e","#E0E0FF"], pattern:"space" },
+    { keys:["tropical","beach","hawaii","summer","luau"], colors:["#FF9A3C","#FFF0E0"], pattern:"tropical" },
+    { keys:["flower","garden","floral","spring","butterfly"], colors:["#7B9E6B","#F0FFF0"], pattern:"flowers" },
+  ];
+  for (const entry of colorMap) {
+    if (entry.keys.some(k => lower.includes(k))) {
+      return { colors: entry.colors, pattern: entry.pattern };
+    }
+  }
+  return { colors: ["#9B5DE5","#F3E8FF"], pattern: "polkadots" };
+}
+
 /* ── Local game data generator (no API needed) ───────────────────────── */
 function generateGameData(gameId, form) {
   const name = form.name || "the celebrant";
@@ -397,9 +511,15 @@ textarea { resize: vertical; min-height: 90px; }
 .output-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
 .print-sheet {
   background: white; border-radius: 20px; padding: 40px;
-  border: 2.5px solid #e9d5ff; position: relative;
+  border: 2.5px solid #e9d5ff; position: relative; overflow: hidden;
   font-family: 'Nunito', sans-serif;
 }
+.print-sheet-inner { position: relative; z-index: 2; }
+.theme-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 8px; margin-bottom: 16px; }
+.theme-pill { padding: 8px 10px; border-radius: 12px; border: 2px solid #e9d5ff; background: white; cursor: pointer; font-size: 12px; font-weight: 800; color: var(--dark); transition: all 0.15s; user-select: none; text-align: center; }
+.theme-pill:hover { border-color: var(--purple); }
+.theme-pill.selected { border-color: var(--purple); background: #f9f0ff; color: var(--purple); }
+.theme-pill-none { border-style: dashed; color: #9ca3af; }
 .print-sheet h2 { font-family: 'Pacifico', cursive; font-size: 28px; color: var(--purple); margin-bottom: 6px; }
 .print-sheet .sheet-sub { font-size: 14px; color: #9ca3af; font-weight: 700; margin-bottom: 24px; }
 /* Word search grid */
@@ -594,33 +714,68 @@ const Confetti = () => {
 };
 
 /* ── Game Sheets ──────────────────────────────────────────────────── */
-function WordSearchSheet({ data, celebrant }) {
-  const { grid, words } = generateWordSearch(data.words || []);
+/* ── Themed Sheet Wrapper ────────────────────────────────────────── */
+function getThemeStyle(theme, customTheme) {
+  if (!theme || theme === "none") return { bg: "white", color: "#9B5DE5", pattern: null };
+  if (theme === "custom") {
+    const ct = getCustomTheme(customTheme || "");
+    return { bg: ct.colors[1], color: ct.colors[0], pattern: ct.pattern, customName: customTheme };
+  }
+  const t = PRESET_THEMES.find(p => p.id === theme);
+  if (!t) return { bg: "white", color: "#9B5DE5", pattern: null };
+  return { bg: t.colors[1], color: t.colors[0], pattern: t.pattern, emoji: t.emoji, label: t.label };
+}
+
+function Sheet({ theme, customTheme, children, title, sub }) {
+  const ts = getThemeStyle(theme, customTheme);
+  const patternSVG = ts.pattern ? getPatternSVG(ts.pattern, ts.color) : null;
+  const svgDataUrl = patternSVG ? `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs>${patternSVG}</defs><rect width="200" height="200" fill="${ts.bg}"/><rect width="200" height="200" fill="url(#pp)"/></svg>`)}` : null;
+
   return (
-    <div className="print-sheet">
-      <h2>🔍 Word Search</h2>
-      <div className="sheet-sub">Find all the words about {celebrant}!</div>
-      <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${grid[0].length}, 28px)` }}>
-        {grid.flat().map((ch, i) => <div key={i} className="ws-cell">{ch}</div>)}
-      </div>
-      <div className="ws-words">
-        {words.map(w => <div key={w} className="ws-word">{w}</div>)}
+    <div className="print-sheet" style={{
+      backgroundImage: svgDataUrl ? `url("${svgDataUrl}")` : "none",
+      backgroundRepeat: "repeat",
+      backgroundSize: "200px 200px",
+      backgroundColor: ts.bg,
+      border: `3px solid ${ts.color}`,
+    }}>
+      <div style={{ position:"relative", zIndex:2 }}>
+        {/* Theme badge */}
+        {theme && theme !== "none" && (
+          <div style={{ position:"absolute", top:-20, right:-20, background:ts.color, color:"white", padding:"4px 12px", borderRadius:"0 0 0 12px", fontSize:11, fontWeight:900 }}>
+            {ts.emoji||"🎨"} {ts.customName||ts.label?.split(" ").slice(1).join(" ")||customTheme||"Custom Theme"}
+          </div>
+        )}
+        <h2 style={{ fontFamily:"'Pacifico', cursive", fontSize:28, color:ts.color, marginBottom:6 }}>{title}</h2>
+        <div className="sheet-sub">{sub}</div>
+        {children}
       </div>
     </div>
   );
 }
 
-function CrosswordSheet({ data, celebrant }) {
+function WordSearchSheet({ data, celebrant, theme, customTheme }) {
+  const { grid, words } = generateWordSearch(data.words || []);
+  return (
+    <Sheet theme={theme} customTheme={customTheme} title="🔍 Word Search" sub={`Find all the words about ${celebrant}!`}>
+      <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${grid[0]?.length||13}, 28px)` }}>
+        {grid.flat().map((ch, i) => <div key={i} className="ws-cell">{ch}</div>)}
+      </div>
+      <div className="ws-words">
+        {words.map(w => <div key={w} className="ws-word">{w}</div>)}
+      </div>
+    </Sheet>
+  );
+}
+
+function CrosswordSheet({ data, celebrant, theme, customTheme }) {
   const { grid, placed } = generateSimpleCrossword(data.pairs || []);
   const across = placed.filter(p => p.dir === "across");
   const down = placed.filter(p => p.dir === "down");
   const numGrid = Array.from({ length: 15 }, () => Array(15).fill(null));
   placed.forEach(p => { numGrid[p.row][p.col] = p.num; });
-
   return (
-    <div className="print-sheet">
-      <h2>✏️ Crossword</h2>
-      <div className="sheet-sub">All clues are about {celebrant}!</div>
+    <Sheet theme={theme} customTheme={customTheme} title="✏️ Crossword" sub={`All clues are about ${celebrant}!`}>
       <div className="cw-grid" style={{ gridTemplateColumns: "repeat(15, 32px)" }}>
         {grid.flat().map((ch, i) => {
           const r = Math.floor(i / 15), c = i % 15;
@@ -628,30 +783,21 @@ function CrosswordSheet({ data, celebrant }) {
           return (
             <div key={i} className={`cw-cell${ch === null ? " black" : ""}`}>
               {num && <span className="cw-num">{num}</span>}
-              {ch !== null ? "" : ""}
             </div>
           );
         })}
       </div>
       <div className="cw-clues">
-        <div className="cw-clue-group">
-          <h4>→ ACROSS</h4>
-          {across.map(p => <div key={p.num} className="cw-clue">{p.num}. {p.clue}</div>)}
-        </div>
-        <div className="cw-clue-group">
-          <h4>↓ DOWN</h4>
-          {down.map(p => <div key={p.num} className="cw-clue">{p.num}. {p.clue}</div>)}
-        </div>
+        <div className="cw-clue-group"><h4>→ ACROSS</h4>{across.map(p => <div key={p.num} className="cw-clue">{p.num}. {p.clue}</div>)}</div>
+        <div className="cw-clue-group"><h4>↓ DOWN</h4>{down.map(p => <div key={p.num} className="cw-clue">{p.num}. {p.clue}</div>)}</div>
       </div>
-    </div>
+    </Sheet>
   );
 }
 
-function QuizSheet({ data, celebrant }) {
+function QuizSheet({ data, celebrant, theme, customTheme }) {
   return (
-    <div className="print-sheet">
-      <h2>🏆 Who Knows {celebrant} Best?</h2>
-      <div className="sheet-sub">Answer the questions — who knows them most?</div>
+    <Sheet theme={theme} customTheme={customTheme} title={`🏆 Who Knows ${celebrant} Best?`} sub="Answer the questions — who knows them most?">
       {(data.questions || []).map((q, i) => (
         <div key={i} className="quiz-q">
           <div className="quiz-q-text">{i + 1}. {q.question}</div>
@@ -662,15 +808,13 @@ function QuizSheet({ data, celebrant }) {
           </div>
         </div>
       ))}
-    </div>
+    </Sheet>
   );
 }
 
-function ThisOrThatSheet({ data, celebrant }) {
+function ThisOrThatSheet({ data, celebrant, theme, customTheme }) {
   return (
-    <div className="print-sheet">
-      <h2>🤔 This or That: {celebrant}</h2>
-      <div className="sheet-sub">Guess which option {celebrant} would choose!</div>
+    <Sheet theme={theme} customTheme={customTheme} title={`🤔 This or That: ${celebrant}`} sub={`Guess which option ${celebrant} would choose!`}>
       {(data.pairs || []).map((p, i) => (
         <div key={i} className="tot-pair">
           <div className="tot-opt">{p.a}</div>
@@ -678,45 +822,39 @@ function ThisOrThatSheet({ data, celebrant }) {
           <div className="tot-opt">{p.b}</div>
         </div>
       ))}
-    </div>
+    </Sheet>
   );
 }
 
-function BingoSheet({ data, celebrant }) {
+function BingoSheet({ data, celebrant, theme, customTheme }) {
   const cells = generateBingo(data.items || []);
   return (
-    <div className="print-sheet">
-      <h2>🎱 {celebrant} Bingo!</h2>
-      <div className="sheet-sub">Mark off each square as it applies!</div>
+    <Sheet theme={theme} customTheme={customTheme} title={`🎱 ${celebrant} Bingo!`} sub="Mark off each square as it applies!">
       <div className="bingo-header">{"BINGO".split("").map((l, i) => <div key={i} className="bingo-letter">{l}</div>)}</div>
       <div className="bingo-grid">
         {cells.map((c, i) => (
           <div key={i} className={`bingo-cell${c === "FREE SPACE" ? " free" : ""}`}>{c}</div>
         ))}
       </div>
-    </div>
+    </Sheet>
   );
 }
 
-function FillBlankSheet({ data, celebrant }) {
+function FillBlankSheet({ data, celebrant, theme, customTheme }) {
   return (
-    <div className="print-sheet">
-      <h2>😄 Fill in the Blank</h2>
-      <div className="sheet-sub">Complete the funny sentences about {celebrant}!</div>
+    <Sheet theme={theme} customTheme={customTheme} title="😄 Fill in the Blank" sub={`Complete the funny sentences about ${celebrant}!`}>
       {(data.sentences || []).map((s, i) => (
         <div key={i} className="fib-item">
           {i + 1}. {s.replace("___", "")} <span className="fib-blank" />
         </div>
       ))}
-    </div>
+    </Sheet>
   );
 }
 
-function ScavengerSheet({ data, celebrant }) {
+function ScavengerSheet({ data, celebrant, theme, customTheme }) {
   return (
-    <div className="print-sheet">
-      <h2>🗺️ Scavenger Hunt</h2>
-      <div className="sheet-sub">Follow the clues at {celebrant}'s party!</div>
+    <Sheet theme={theme} customTheme={customTheme} title="🗺️ Scavenger Hunt" sub={`Follow the clues at ${celebrant}'s party!`}>
       {(data.clues || []).map((c, i) => (
         <div key={i} className="sh-clue">
           <div className="sh-num">{i + 1}</div>
@@ -726,15 +864,13 @@ function ScavengerSheet({ data, celebrant }) {
           </div>
         </div>
       ))}
-    </div>
+    </Sheet>
   );
 }
 
-function TriviaSheet({ data, celebrant }) {
+function TriviaSheet({ data, celebrant, theme, customTheme }) {
   return (
-    <div className="print-sheet">
-      <h2>💡 {celebrant} Trivia</h2>
-      <div className="sheet-sub">Test your knowledge!</div>
+    <Sheet theme={theme} customTheme={customTheme} title={`💡 ${celebrant} Trivia`} sub="Test your knowledge!">
       {(data.questions || []).map((q, i) => (
         <div key={i} className="quiz-q">
           <div className="quiz-q-text">{i + 1}. {q.question}</div>
@@ -745,7 +881,7 @@ function TriviaSheet({ data, celebrant }) {
           </div>
         </div>
       ))}
-    </div>
+    </Sheet>
   );
 }
 
@@ -1025,6 +1161,8 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [form, setForm] = useState({ name: "", age: "", eventType: "birthday_kids", hobbies: "", favorites: "", funFacts: "", venue: "" });
   const [selectedGames, setSelectedGames] = useState(["wordsearch", "quiz", "thisorthat"]);
+  const [theme, setTheme] = useState("none");
+  const [customTheme, setCustomTheme] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [gameData, setGameData] = useState({});
@@ -1099,16 +1237,17 @@ export default function App() {
   const renderSheet = (gid) => {
     const data = gameData[gid] || {};
     const name = form.name;
+    const tp = { theme, customTheme };
     if (data.error) return <div style={{ padding: 24, color: "#ef4444", fontWeight: 700 }}>⚠️ Could not generate this game. Please try again.</div>;
     switch (gid) {
-      case "wordsearch": return <WordSearchSheet data={data} celebrant={name} />;
-      case "crossword": return <CrosswordSheet data={data} celebrant={name} />;
-      case "quiz": return <QuizSheet data={data} celebrant={name} />;
-      case "thisorthat": return <ThisOrThatSheet data={data} celebrant={name} />;
-      case "trivia": return <TriviaSheet data={data} celebrant={name} />;
-      case "bingo": return <BingoSheet data={data} celebrant={name} />;
-      case "fillinblank": return <FillBlankSheet data={data} celebrant={name} />;
-      case "scavenger": return <ScavengerSheet data={data} celebrant={name} />;
+      case "wordsearch": return <WordSearchSheet data={data} celebrant={name} {...tp} />;
+      case "crossword": return <CrosswordSheet data={data} celebrant={name} {...tp} />;
+      case "quiz": return <QuizSheet data={data} celebrant={name} {...tp} />;
+      case "thisorthat": return <ThisOrThatSheet data={data} celebrant={name} {...tp} />;
+      case "trivia": return <TriviaSheet data={data} celebrant={name} {...tp} />;
+      case "bingo": return <BingoSheet data={data} celebrant={name} {...tp} />;
+      case "fillinblank": return <FillBlankSheet data={data} celebrant={name} {...tp} />;
+      case "scavenger": return <ScavengerSheet data={data} celebrant={name} {...tp} />;
       default: return null;
     }
   };
@@ -1275,9 +1414,52 @@ export default function App() {
                 ))}
               </div>
 
+              {/* Theme Picker */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, flexWrap:"wrap", gap:8 }}>
+                  <label style={{ margin:0 }}>🎨 Party Theme <span style={{ fontWeight:600, color:"#9ca3af", fontSize:11 }}>(optional)</span></label>
+                  {theme !== "none" && (
+                    <button onClick={()=>{setTheme("none");setCustomTheme("");}}
+                      style={{ padding:"4px 12px", borderRadius:99, border:"2px solid #e9d5ff", background:"white", color:"#9ca3af", fontWeight:800, fontSize:11, cursor:"pointer" }}>
+                      ✕ Clear theme
+                    </button>
+                  )}
+                </div>
+                <div className="theme-picker-grid">
+                  <div className={`theme-pill theme-pill-none${theme==="none"?" selected":""}`} onClick={()=>{setTheme("none");setCustomTheme("");}}>
+                    🚫 No theme
+                  </div>
+                  {PRESET_THEMES.filter(t=>t.event.includes(form.eventType)||t.event.includes("general")).map(t=>(
+                    <div key={t.id}
+                      className={`theme-pill${theme===t.id?" selected":""}`}
+                      style={{ borderColor: theme===t.id ? t.colors[0] : "#e9d5ff", background: theme===t.id ? t.colors[1] : "white", color: theme===t.id ? t.colors[0] : "var(--dark)" }}
+                      onClick={()=>{setTheme(t.id);setCustomTheme("");}}>
+                      {t.label}
+                    </div>
+                  ))}
+                  <div className={`theme-pill${theme==="custom"?" selected":""}`}
+                    style={{ borderStyle:"dashed", borderColor: theme==="custom" ? "var(--purple)" : "#e9d5ff" }}
+                    onClick={()=>setTheme("custom")}>
+                    ✏️ Custom theme
+                  </div>
+                </div>
+                {theme==="custom" && (
+                  <input
+                    value={customTheme} onChange={e=>setCustomTheme(e.target.value)}
+                    placeholder="e.g. Minnie Mouse, Moana, Frozen, Encanto..."
+                    style={{ width:"100%", padding:"11px 14px", borderRadius:14, border:"2px solid var(--purple)", fontSize:15, fontWeight:700, color:"#1a1a1a", background:"white", colorScheme:"light", marginTop:8 }}
+                  />
+                )}
+                {theme && theme !== "none" && (
+                  <div style={{ fontSize:12, color:"#6b7280", fontWeight:700, marginTop:8 }}>
+                    ✅ {theme==="custom" ? (customTheme||"Custom") : PRESET_THEMES.find(t=>t.id===theme)?.label} theme will appear as a background pattern on all game sheets
+                  </div>
+                )}
+              </div>
+
               {/* Game selection */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, flexWrap:"wrap", gap:8 }}>
-                <label style={{ margin:0 }}>Select Games to Generate</label>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, flexWrap:"wrap", gap:8 }}>
+                  <label style={{ margin:0 }}>Select Games to Generate</label>
                 <div style={{ display:"flex", gap:8 }}>
                   <button onClick={()=>setSelectedGames(GAMES.map(g=>g.id))}
                     style={{ padding:"5px 14px", borderRadius:99, border:"2px solid var(--purple)", background:"#f9f0ff", color:"var(--purple)", fontWeight:800, fontSize:12, cursor:"pointer" }}>
