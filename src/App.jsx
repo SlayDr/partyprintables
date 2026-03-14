@@ -890,35 +890,53 @@ function getEventFields(eventType) {
 }
 
 /* ── Donation Widget ──────────────────────────────────────────────── */
+const STRIPE_LINKS = {
+  "$5":    "https://buy.stripe.com/4gM8wR72vau64Va6r043S01",
+  "$10":   "https://buy.stripe.com/bJe28tgD51XA4VaeXw43S00",
+  "$20":   "https://buy.stripe.com/cNi6oJ4Un45IcnC6r043S02",
+  "custom":"https://buy.stripe.com/4gM8wR72vau64Va6r043S01", // opens $5 as minimum
+};
+
 function DonationWidget({ donationAmt, setDonationAmt, customAmt, setCustomAmt }) {
-  const finalAmt = donationAmt === "custom" ? customAmt : donationAmt;
+  const handleDonate = () => {
+    const link = STRIPE_LINKS[donationAmt];
+    if (link) window.open(link, "_blank");
+  };
+
   return (
     <div className="donation-bar">
       <div className="donation-title">❤️ Enjoying PartyPrintables?</div>
       <p className="donation-sub">This tool is completely free. If it saved you time and made your party special, consider buying us a coffee — every donation keeps it free for everyone!</p>
       <div className="donation-amounts">
-        {["$2","$5","$10","$20","custom"].map(a => (
+        {["$5","$10","$20","custom"].map(a => (
           <button key={a} className={`donation-amt${donationAmt === a ? " selected" : ""}`}
             onClick={() => { setDonationAmt(a); if(a !== "custom") setCustomAmt(""); }}>
-            {a === "custom" ? "Custom 💛" : a}
+            {a === "custom" ? "Other 💛" : a}
           </button>
         ))}
       </div>
       {donationAmt === "custom" && (
-        <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"center", marginBottom:16 }}>
-          <span style={{ fontWeight:800, fontSize:18, color:"var(--dark)" }}>$</span>
-          <input type="number" min="1" placeholder="Enter amount"
-            value={customAmt} onChange={e => setCustomAmt(e.target.value)}
-            style={{ width:120, padding:"10px 14px", borderRadius:14, border:"2px solid var(--purple)", fontSize:16, fontWeight:700, textAlign:"center", color:"#1a1a1a", background:"white", colorScheme:"light" }}
-          />
+        <div style={{ marginBottom:16 }}>
+          <p style={{ fontSize:13, fontWeight:700, color:"#6b7280", marginBottom:8 }}>
+            Enter any amount — you'll complete payment on Stripe's secure page.
+          </p>
+          <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"center" }}>
+            <span style={{ fontWeight:800, fontSize:18, color:"var(--dark)" }}>$</span>
+            <input type="number" min="1" placeholder="e.g. 15"
+              value={customAmt} onChange={e => setCustomAmt(e.target.value)}
+              style={{ width:120, padding:"10px 14px", borderRadius:14, border:"2px solid var(--purple)", fontSize:16, fontWeight:700, textAlign:"center", color:"#1a1a1a", background:"white", colorScheme:"light" }}
+            />
+          </div>
         </div>
       )}
-      {(finalAmt && finalAmt !== "custom") && (
-        <button className="btn btn-primary" onClick={() => alert(`Thank you! Stripe integration coming soon — your ${donationAmt === "custom" ? `$${customAmt}` : donationAmt} donation means the world! 🙏`)}>
-          ☕ Donate {donationAmt === "custom" ? `$${customAmt}` : donationAmt}
+      {donationAmt && (
+        <button className="btn btn-primary" onClick={handleDonate}>
+          ☕ Donate {donationAmt === "custom" ? customAmt ? `$${customAmt}` : "via Stripe" : donationAmt} →
         </button>
       )}
-      <div style={{ fontSize:12, color:"#9ca3af", fontWeight:700, marginTop:12 }}>🔒 Secure payments via Stripe · Coming soon</div>
+      <div style={{ fontSize:12, color:"#9ca3af", fontWeight:700, marginTop:12 }}>
+        🔒 Secure payments via Stripe
+      </div>
     </div>
   );
 }
