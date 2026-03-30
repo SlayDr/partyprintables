@@ -235,7 +235,77 @@ function generateGameData(gameId, form) {
           : [hobbies[0]||"Music", favs[0]||"Coffee", "Night owl", "Beach", "Netflix", "Eat out", "Dogs/Cats", "Summer", "Text", "Sweet"]
       };
 
-    case "trivia":
+    case "trivia": {
+      const birthYear = age ? new Date().getFullYear() - Number(age) : 1990;
+      const coupleQuestions = [
+        { type:"mc", question:`Where did ${name} and ${partner||"their partner"} first meet?`, options: shuffle([form.metStory||"through mutual friends","online dating","at school","at a party"]), correct:"A" },
+        { type:"mc", question:`How long have ${name} & ${partner||"partner"} been together?`, options: shuffle([form.years?`${form.years} years`:"A few years","1 year","20 years","30 years"]), correct:"A" },
+        { type:"mc", question:`What do they love doing together?`, options: shuffle([hobbies[0]||"travelling","watching paint dry","doing taxes","arguing"]), correct:"A" },
+        { type:"mc", question:`Their all-time favourite thing to enjoy together is...`, options: shuffle([favs[0]||"good food","traffic jams","bad weather","cold showers"]), correct:"A" },
+        { type:"mc", question:`${name} would describe ${partner||"their partner"} as...`, options: shuffle(["my soulmate","my accountant","my nemesis","a total stranger"]), correct:"A" },
+        { type:"mc", question:`Their guests would describe them as...`, options: shuffle(["total couple goals","always arguing","complete strangers","just flatmates"]), correct:"A" },
+        { type:"mc", question:`Where is today's celebration being held?`, options: shuffle([venue,"the moon","a submarine","a haunted house"]), correct:"A" },
+        { type:"mc", question:`What is their shared favourite hobby?`, options: shuffle([hobbies[1]||hobbies[0]||"laughing together","extreme ironing","tightrope walking","silent meditation"]), correct:"A" },
+        { type:"mc", question:`Something neither of them can live without is...`, options: shuffle([favs[1]||favs[0]||"each other","traffic jams","bad WiFi","Mondays"]), correct:"A" },
+        { type:"mc", question:`If they went on a dream holiday, where would they go?`, options: shuffle(["somewhere tropical","a car park","their local supermarket","a tax office"]), correct:"A" },
+        { type:"tf", question:`True or False: ${name} and ${partner||"partner"} knew each other for at least a year before dating.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} is the better cook in the relationship.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: They have already been on holiday together at least once.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} loves ${hobbies[0]||"spending time outdoors"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Their first date lasted more than 2 hours.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Both of them enjoy ${favs[0]||"trying new foods"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} is the morning person in the relationship.`, options:["True","False"], correct:"B" },
+        { type:"tf", question:`True or False: They have a favourite TV show they watch together.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Today's guests all knew about this celebration in advance.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Everyone here today loves ${name} and ${partner||"their partner"} very much.`, options:["True","False"], correct:"A" },
+      ];
+      const babyQuestions = [
+        { type:"mc", question:`When is ${name}'s baby due?`, options: shuffle([form.dueDate||"Spring 2025","Summer 2025","Autumn 2025","Winter 2025"]), correct:"A" },
+        { type:"mc", question:`Is the baby a boy or a girl?`, options: shuffle([form.babyGender||"It's a surprise!","Boy","Girl","Twins"]), correct:"A" },
+        { type:"mc", question:`What is the baby's name (if chosen)?`, options: shuffle([form.babyName||"Shhh, it's a secret!","Oliver","Charlotte","James"]), correct:"A" },
+        { type:"mc", question:`What is ${name} most excited about?`, options: shuffle(["becoming a mum!","sleepless nights","nappy changes","losing sleep"]), correct:"A" },
+        { type:"mc", question:`${name}'s favourite thing is...`, options: shuffle([favs[0]||"chocolate","cold showers","diets","Mondays"]), correct:"A" },
+        { type:"mc", question:`${name} loves to...`, options: shuffle([hobbies[0]||"relax","do extreme sports","go skydiving","do taxes"]), correct:"A" },
+        { type:"mc", question:`${name}'s friends describe her as...`, options: shuffle(["glowing & amazing","always grumpy","never smiles","hates babies"]), correct:"A" },
+        { type:"mc", question:`Where is today's baby shower being held?`, options: shuffle([venue,"outer space","underwater","a treehouse"]), correct:"A" },
+        { type:"mc", question:`What does ${name} love doing in her free time?`, options: shuffle([hobbies[1]||hobbies[0]||"nesting","extreme sports","cliff diving","running marathons"]), correct:"A" },
+        { type:"mc", question:`${name} and ${partner||"the dad-to-be"} are most looking forward to...`, options: shuffle(["meeting their baby","the nappy changes","3am wake-ups","teething season"]), correct:"A" },
+        { type:"tf", question:`True or False: ${name} has already chosen the nursery theme.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} has been craving sweet foods throughout her pregnancy.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: The baby's name has already been finalised.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} loves ${hobbies[0]||"spending time outdoors"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} has read at least one pregnancy or parenting book.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: The baby shower is a surprise for ${name}.`, options:["True","False"], correct:"B" },
+        { type:"tf", question:`True or False: ${name} is hoping the baby has her eyes.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${partner||"The partner"} has already started building baby furniture.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} enjoys ${favs[0]||"chocolate"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Everyone at today's shower is thrilled for ${name}.`, options:["True","False"], correct:"A" },
+      ];
+      const generalQuestions = [
+        { type:"mc", question:`What year was ${name} born?`, options: shuffle([String(birthYear),String(birthYear+2),String(birthYear-3),String(birthYear+5)]), correct:"A" },
+        { type:"mc", question:`${name} is most passionate about...`, options: shuffle([hobbies[0]||"life","extreme ironing","tightrope walking","mime"]), correct:"A" },
+        { type:"mc", question:`${name} is absolutely crazy about...`, options: shuffle([favs[0]||"coffee","liver and onions","cold showers","traffic jams"]), correct:"A" },
+        { type:"mc", question:`${name} works as / has studied...`, options: shuffle([form.job||form.degree||"something amazing","professional napper","time traveller","astronaut"]), correct:"A" },
+        { type:"mc", question:`${name}'s friends would call them...`, options: shuffle(["amazing & fun","boring","grumpy","antisocial"]), correct:"A" },
+        { type:"mc", question:`${name} would rather spend a free day...`, options: shuffle([hobbies[0]||"relaxing","doing tax returns","queueing","sleeping on concrete"]), correct:"A" },
+        { type:"mc", question:`${name}'s absolute can't-live-without item is...`, options: shuffle([favs[0]||"coffee",favs[1]||"books","misery","absolutely nothing"]), correct:"A" },
+        { type:"mc", question:`Today's celebration venue is...`, options: shuffle([venue,"the moon","a submarine","a haunted castle"]), correct:"A" },
+        { type:"mc", question:`Another hobby ${name} enjoys is...`, options: shuffle([hobbies[1]||hobbies[0]||"cooking","professional complaining","watching grass grow","counting ceiling tiles"]), correct:"A" },
+        { type:"mc", question:`Something else ${name} loves is...`, options: shuffle([favs[1]||favs[0]||"spending time with loved ones","gridlock traffic","Mondays","rainy commutes"]), correct:"A" },
+        { type:"tf", question:`True or False: ${name} loves ${hobbies[0]||"spending time with friends"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} is turning ${age||"a milestone age"} today.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} enjoys ${favs[0]||"good food"}.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} is a morning person.`, options:["True","False"], correct:"B" },
+        { type:"tf", question:`True or False: ${name} has tried ${hobbies[1]||"a new hobby"} in the last year.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} prefers nights in over nights out.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} has travelled outside of their home country.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} has a favourite TV show they can rewatch endlessly.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: ${name} would describe themselves as a foodie.`, options:["True","False"], correct:"A" },
+        { type:"tf", question:`True or False: Everyone here today loves ${name} very much.`, options:["True","False"], correct:"A" },
+      ];
+      return { questions: isBaby ? babyQuestions : isCouple ? coupleQuestions : generalQuestions };
+    }
+    case "PLACEHOLDER":
       return {
         questions: isCouple ? [
           { question: `Where did ${name} and ${partner||"their partner"} meet?`, options: shuffle([form.metStory||"through mutual friends","online","at school","at a party"]), correct:"A" },
@@ -1030,7 +1100,13 @@ const FAVOUR_CATEGORIES = [
 /* ── Dynamic form fields per event type ──────────────────────────── */
 function getEventFields(eventType) {
   const venue = { key:"venue", label:"Venue / Location", placeholder:"e.g. garden, pub, community hall" };
-  const aboutAll = { key:"funFacts", label:"Tell Us All About the Celebrant", placeholder:"Funny stories, habits, memorable moments...", type:"textarea", full:true };
+  const aboutAll = {
+  key:"funFacts",
+  label:"Tell Us All About the Celebrant (8 details = best questions!)",
+  placeholder:"Share these 8 things for the best trivia:\n1. A funny story or memorable moment\n2. A habit or quirk everyone knows\n3. Their favourite movie or TV show\n4. A place they have lived or travelled to\n5. Something they are secretly bad at\n6. Their go-to karaoke song or favourite artist\n7. A childhood memory or nickname\n8. One thing on their bucket list",
+  type:"textarea",
+  full:true,
+};
 
   const fields = {
     birthday_kids: [
