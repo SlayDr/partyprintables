@@ -869,16 +869,35 @@ function ScavengerSheet({ data, celebrant, theme, customTheme }) {
 }
 
 function TriviaSheet({ data, celebrant, theme, customTheme }) {
+  const questions = data.questions || [];
   return (
-    <Sheet theme={theme} customTheme={customTheme} title={`💡 ${celebrant} Trivia`} sub="Test your knowledge!">
-      {(data.questions || []).map((q, i) => (
+    <Sheet theme={theme} customTheme={customTheme}
+      title={`💡 ${celebrant} Trivia`}
+      sub={`20 questions — multiple choice & true/false. How well do you know ${celebrant}?`}>
+      {questions.map((q, i) => (
         <div key={i} className="quiz-q">
-          <div className="quiz-q-text">{i + 1}. {q.question}</div>
-          <div className="quiz-options">
-            {(q.options || []).map((o, j) => (
-              <div key={j} className="quiz-option">{String.fromCharCode(65 + j)}) {o}</div>
-            ))}
+          <div style={{
+            display:"inline-block", padding:"2px 10px", borderRadius:99,
+            fontSize:10, fontWeight:900, letterSpacing:".06em",
+            textTransform:"uppercase", marginBottom:6,
+            background: q.type==="tf" ? "#e0f7f4" : "#f3e8ff",
+            color: q.type==="tf" ? "#0f766e" : "#9B5DE5",
+          }}>
+            {q.type === "tf" ? "True or False" : "Multiple Choice"}
           </div>
+          <div className="quiz-q-text">{i + 1}. {q.question}</div>
+          {q.type === "tf" ? (
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+              <div style={{ padding:"10px 14px", borderRadius:10, border:"2px solid #e9d5ff", fontSize:14, fontWeight:800, textAlign:"center", color:"#374151" }}>✅ True</div>
+              <div style={{ padding:"10px 14px", borderRadius:10, border:"2px solid #e9d5ff", fontSize:14, fontWeight:800, textAlign:"center", color:"#374151" }}>❌ False</div>
+            </div>
+          ) : (
+            <div className="quiz-options">
+              {(q.options || []).map((o, j) => (
+                <div key={j} className="quiz-option">{String.fromCharCode(65 + j)}) {o}</div>
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </Sheet>
