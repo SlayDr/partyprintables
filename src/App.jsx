@@ -237,8 +237,52 @@ function generateGameData(gameId, form) {
 
     case "trivia": {
       const birthYear = age ? new Date().getFullYear() - Number(age) : 1990;
-      const funFactLines = (form.funFacts||"").split(/\n/).map(s=>s.replace(/^\d+\.\s*/,"").trim()).filter(s=>s.length>3);
-      const fakeOptions = ["professional napper","time traveller","extreme ironing","watching paint dry","counting ceiling tiles","competitive thumb wrestling","yodelling champion","cloud spotting enthusiast"];
+
+      // Parse funFacts line by line into clean individual facts
+      const funFactLines = (form.funFacts||"")
+        .split(/\n/)
+        .map(s=>s.replace(/^\d+\.\s*/,"").trim())
+        .filter(s=>s.length>3 && s.split(" ").length<=12);
+
+      // Extract specific details from funFacts text
+      const funText = (form.funFacts||"").toLowerCase();
+      const detectSiblings = () => {
+        const m = funText.match(/(first|second|third|only|eldest|youngest|middle)\s+(of\s+)?(\w+\s+)?(sibling|sister|brother|child)/);
+        return m ? m[0] : null;
+      };
+      const detectSubject = () => {
+        const subjects = ["maths","math","science","english","art","music","history","geography","pe","sports","reading","writing","coding","dance","drama"];
+        for(const s of subjects){ if(funText.includes(s)) return s.charAt(0).toUpperCase()+s.slice(1); }
+        return null;
+      };
+      const detectColor = () => {
+        const colors = ["pink","blue","purple","red","green","yellow","orange","black","white","gold","silver","teal","turquoise","lavender","coral"];
+        for(const c of colors){ if(funText.includes(c)) return c.charAt(0).toUpperCase()+c.slice(1); }
+        return null;
+      };
+      const detectFood = () => {
+        const foods = ["pizza","chicken","rice","pasta","sushi","tacos","burger","salad","chocolate","cake","okro","jollof","plantain","fries","noodles","soup"];
+        for(const f of foods){ if(funText.includes(f)) return f.charAt(0).toUpperCase()+f.slice(1); }
+        return null;
+      };
+      const detectPlace = () => {
+        const m = (form.funFacts||"").match(/born in ([A-Z][a-z]+)/);
+        return m ? m[1] : null;
+      };
+
+      const siblingInfo = detectSiblings();
+      const favSubject = detectSubject();
+      const favColor = detectColor();
+      const favFood = detectFood();
+      const birthPlace = detectPlace();
+
+      const fakeOptions = [
+        "professional napper","time traveller","extreme ironing champion",
+        "watching paint dry","counting ceiling tiles","competitive thumb wrestling",
+        "yodelling champion","cloud spotting enthusiast","professional daydreamer",
+        "competitive sock sorting"
+      ];
+
       const makeMC = (question, realAnswer) => {
         if(!realAnswer || String(realAnswer).trim().length < 2) return null;
         const fakes = [...fakeOptions].sort(()=>Math.random()-0.5).filter(f=>f!==realAnswer).slice(0,3);
@@ -249,6 +293,7 @@ function generateGameData(gameId, form) {
       const allMC = [];
       const allTF = [];
 
+      // MC from form fields
       if(form.name) allMC.push(makeMC("What is the celebrant's name?", form.name));
       if(form.age) allMC.push(makeMC(`How old is ${name} turning?`, `${form.age}`));
       if(form.job) allMC.push(makeMC(`What does ${name} do for work?`, form.job));
@@ -261,8 +306,15 @@ function generateGameData(gameId, form) {
       if(form.babyGender) allMC.push(makeMC(`What gender is ${name}'s baby?`, form.babyGender));
       hobbies.filter(h=>h&&h.length>2).forEach(h=>{ allMC.push(makeMC(`What is one of ${name}'s favourite hobbies?`, h)); });
       favs.filter(f=>f&&f.length>2).forEach(f=>{ allMC.push(makeMC(`Which of these does ${name} love?`, f)); });
-      funFactLines.slice(0,5).forEach(line=>{ if(line.split(" ").length>=3) allMC.push(makeMC(`Complete this fact about ${name}: "${line.substring(0,Math.floor(line.length/2))}..."`, line)); });
 
+      // MC from detected funFacts details
+      if(favColor) allMC.push(makeMC(`What is ${name}'s favourite colour?`, favColor));
+      if(favFood) allMC.push(makeMC(`What is one of ${name}'s favourite foods?`, favFood));
+      if(favSubject) allMC.push(makeMC(`What is ${name}'s favourite subject?`, favSubject));
+      if(birthPlace) allMC.push(makeMC(`Where was ${name} born?`, birthPlace));
+      if(siblingInfo) allMC.push(makeMC(`What is ${name}'s position in their family?`, siblingInfo));
+
+      // TF from form fields
       if(form.age) allTF.push(makeTF(`True or False: ${name} is turning ${form.age} today.`, "A"));
       if(form.job) allTF.push(makeTF(`True or False: ${name} works as a ${form.job}.`, "A"));
       if(hobbies[0]) allTF.push(makeTF(`True or False: ${name} loves ${hobbies[0]}.`, "A"));
@@ -271,8 +323,13 @@ function generateGameData(gameId, form) {
       if(favs[1]) allTF.push(makeTF(`True or False: One of ${name}'s favourite things is ${favs[1]}.`, "A"));
       if(form.venue) allTF.push(makeTF(`True or False: Today's celebration is at ${form.venue}.`, "A"));
       if(form.years) allTF.push(makeTF(`True or False: ${name} and ${partner||"their partner"} have been together for ${form.years} years.`, "A"));
-      if(funFactLines[0]) allTF.push(makeTF(`True or False: ${funFactLines[0]}`, "A"));
-      if(funFactLines[1]) allTF.push(makeTF(`True or False: ${funFactLines[1]}`, "A"));
+
+      // TF from detected funFacts details
+      if(favColor) allTF.push(makeTF(`True or False: ${name}'s favourite colour is ${favColor}.`, "A"));
+      if(favFood) allTF.push(makeTF(`True or False: ${name} loves eating ${favFood}.`, "A"));
+      if(favSubject) allTF.push(makeTF(`True or False: ${name}'s favourite subject is ${favSubject}.`, "A"));
+      if(birthPlace) allTF.push(makeTF(`True or False: ${name} was born in ${birthPlace}.`, "A"));
+      if(siblingInfo) allTF.push(makeTF(`True or False: ${name} is the ${siblingInfo}.`, "A"));
       allTF.push(makeTF(`True or False: Everyone here today loves ${name} very much.`, "A"));
 
       const validMC = allMC.filter(q=>q!==null).slice(0,10);
